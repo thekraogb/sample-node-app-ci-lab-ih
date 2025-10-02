@@ -230,19 +230,12 @@ jobs:
           PACKAGE_SAS_URL: ${{ env.PACKAGE_SAS_URL }}
         with:
           inlineScript: |
-            # Upload the deployment script to VM
             az vm run-command invoke \
               --resource-group "$AZURE_RESOURCE_GROUP" \
               --name "$AZURE_VM_NAME" \
               --command-id RunShellScript \
-              --scripts "cat > /tmp/deploy.sh << 'DEPLOY_SCRIPT_EOF'
+              --scripts "cat > /tmp/deploy.sh << 'EOF'
             $(cat deploy.sh)
-            DEPLOY_SCRIPT_EOF
-            chmod +x /tmp/deploy.sh"
-
-            # Execute the deployment script
-            az vm run-command invoke \
-              --resource-group "$AZURE_RESOURCE_GROUP" \
-              --name "$AZURE_VM_NAME" \
-              --command-id RunShellScript \
-              --scripts "sudo /tmp/deploy.sh '$PACKAGE_SAS_URL'"
+            EOF
+            chmod +x /tmp/deploy.sh
+        sudo /tmp/deploy.sh '$PACKAGE_SAS_URL'"
