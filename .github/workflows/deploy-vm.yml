@@ -221,8 +221,20 @@ jobs:
           echo "Deployment completed successfully"
           EOF
 
-      - name: Upload and execute deployment script
-        if: ${{ success() }}
+      - name: Upload deployment script to VM
+        uses: azure/cli@v2.1.0
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          AZURE_VM_NAME: ${{ secrets.AZURE_VM_NAME }}
+        with:
+          inlineScript: |
+            az vm run-command invoke \
+              --resource-group "$AZURE_RESOURCE_GROUP" \
+              --name "$AZURE_VM_NAME" \
+              --command-id RunShellScript \
+              --scripts @"deploy.sh"
+
+      - name: Execute deployment script on VM
         uses: azure/cli@v2.1.0
         env:
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
@@ -234,8 +246,4 @@ jobs:
               --resource-group "$AZURE_RESOURCE_GROUP" \
               --name "$AZURE_VM_NAME" \
               --command-id RunShellScript \
-              --scripts "cat > /tmp/deploy.sh << 'EOF'
-            $(cat deploy.sh)
-            EOF
-            chmod +x /tmp/deploy.sh
-            sudo /tmp/deploy.sh '$PACKAGE_SAS_URL'"
+              --scripts "sudo /tmp/deploy.sh '$PACKAGE_SAS_URL'"         
