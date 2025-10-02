@@ -238,4 +238,4 @@ jobs:
             $(cat deploy.sh)
             EOF
             chmod +x /tmp/deploy.sh
-        sudo /tmp/deploy.sh '$PACKAGE_SAS_URL'"
+            sudo /tmp/deploy.sh '$PACKAGE_SAS_URL'"
